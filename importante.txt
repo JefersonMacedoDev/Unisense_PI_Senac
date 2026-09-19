@@ -1,0 +1,82 @@
+Primeiro Passo:
+
+instale essas extenções no terminal do seu VSCode:
+
+mysql-connector-python
+python-dotenv
+python -m pip install google-genai
+
+==========================================================================
+
+Segundo Passo:
+
+Em seu MySQL, recrie o banco de dados seguindo as seguintes orientações:
+
+CREATE DATABASE IF NOT EXISTS sistema_acessibilidade;
+
+USE sistema_acessibilidade;
+
+CREATE TABLE IF NOT EXISTS usuarios (
+
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    nome VARCHAR(100) NOT NULL,
+
+    email VARCHAR(100) UNIQUE NOT NULL,
+
+    senha VARCHAR(100) NOT NULL,
+
+    estilo_usuario VARCHAR(50)
+
+);
+
+CREATE TABLE IF NOT EXISTS tarefas (
+
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    usuario_id INT,
+
+    titulo VARCHAR(255),
+
+    descricao TEXT,
+
+    concluida BOOLEAN DEFAULT FALSE,
+
+    passos_ia TEXT,
+
+    FOREIGN KEY (usuario_id)
+    REFERENCES usuarios(id)
+
+);
+
+Execute(raio)
+
+==========================================================================
+
+Terceiro Passo:
+
+Ajuste as informações do arquivo "backend/database.py" conforme esta no seu MySQL em seu computador,
+assim vai conseguir testar o sistema pelo terminal
+
+==========================================================================
+
+Atualizando suas contribuições no GiHub:
+
+Antes de começar qualquer nova funcionalidade, se atualize com 'git pull',
+Isso baixa atualizações feitas por outros integrantes!
+
+Fluxo correto completo:
+
+git pull
+git add .
+git commit -m "Descrição"
+git push origin main
+
+O que acontece em cada etapa;
+
+Comando                 O que faz
+
+git pull                baixa atualizações do GitHub
+git add .	            prepara arquivos
+git commit	            cria save/versionamento
+git push origin main	envia ao GitHub

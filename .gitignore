@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.env
+.vscode/
+
+# Banco local (recriado pelo init_db ao subir o app)
+database.db
+
+# Artefatos de teste/execução
+*.log
+cookies.txt
+
+# Config de preview local (caminhos específicos da máquina)
+**/.claude/launch.json

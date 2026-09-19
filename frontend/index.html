@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UniSense</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="screen-login" class="screen active">
+  <div class="login-box">
+    <div class="logo-mark">UniSense</div>
+    <div class="logo-sub">Sistema de acessibilidade Visual e Auditiva</div>
+
+   <div class="field">
+      <label for="login-email">E-mail</label>
+      <input 
+        type="email" 
+        id="login-email" 
+        placeholder="voce@email.com" 
+        aria-required="true"
+        onkeydown="if(event.key==='Enter') fazerLogin()">
+    </div>
+
+    <div class="field">
+      <label for="login-senha">Senha</label>
+      <input 
+        type="password" 
+        id="login-senha" 
+        placeholder="••••••••" 
+        aria-required="true"
+        oninput="validarSenhaAoDigitar()"
+        onkeydown="if(event.key==='Enter') fazerLogin()">
+    </div>
+
+    <!-- Requisitos visuais da senha -->
+    <div class="password-requirements" id="password-requirements">
+      <p>A senha deve conter:</p>
+      <ul>
+        <li id="req-length" class="req-item" data-texto="Mínimo de 8 caracteres">✖ Mínimo de 8 caracteres</li>
+        <li id="req-upper" class="req-item" data-texto="Pelo menos 1 letra maiúscula">✖ Pelo menos 1 letra maiúscula</li>
+        <li id="req-special" class="req-item" data-texto="Pelo menos 1 caractere especial (!@#$%^&*)">✖ Pelo menos 1 caractere especial (!@#$%^&*)</li>
+      </ul>
+    </div>
+
+    <div id="login-erro" class="error-msg" role="alert" style="display: none;"></div>
+
+    <button class="btn btn-primary" onclick="fazerLogin()">Entrar</button>
+
+    <div class="login-links">
+      <button class="btn btn-ghost" onclick="abrirCadastro()">Criar conta</button>
+      <button class="btn btn-ghost" onclick="abrirRecuperacao()">Esqueci a senha</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="screen-app" class="screen">
+  <button class="sair-flutuante" onclick="sair()" title="Sair" aria-label="Sair da conta">🚪 Sair</button>
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">UniSense</div>
+      <div class="sidebar-sub">Sistema de acessibilidade Visual e Auditiva</div>
+      <button class="nav-item active" id="nav-dashboard" onclick="navegar('dashboard')">
+        <span class="icon">⚡</span> Dashboard
+      </button>
+      <button class="nav-item" id="nav-estudos" onclick="navegar('estudos')">
+        <span class="icon">📚</span> Área de Estudos
+      </button>
+      <button class="nav-item" id="nav-cursos" onclick="navegar('cursos')">
+        <span class="icon">🎓</span> Cursos Rápidos
+      </button>
+      <button class="nav-item" id="nav-perfil" onclick="navegar('perfil')">
+        <span class="icon">👤</span> Perfil
+      </button>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="main-content">
+
+      <!-- DASHBOARD -->
+      <div id="page-dashboard">
+        <div class="page-title">Dashboard</div>
+        <div class="page-subtitle" id="dash-usuario"></div>
+
+        <div class="card" role="button" tabindex="0" aria-label="Abrir Foco Diário" style="cursor:pointer;transition:border-color .2s;margin-bottom:1rem" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'" onclick="abrirTarefas()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirTarefas()}">
+          <div style="font-size:1.6rem;margin-bottom:.4rem">🎯</div>
+          <h3>Foco Diário</h3>
+          <p>Crie tarefas e gerencie sua rotina — com passos sugeridos pela IA</p>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem">
+          <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700">Assistente IA</div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <button class="btn btn-ghost btn-sm" style="width:auto" onclick="novaConversa()">🆕 Nova conversa</button>
+            <button class="btn btn-ghost btn-sm" style="width:auto" onclick="abrirHistoricoConversas()">🕘 Histórico</button>
+          </div>
+        </div>
+        <div class="chat-wrap">
+          <div class="chat-messages" id="chat-msgs">
+            <div class="msg assistant">Olá! Sou o assistente UniSense. Como posso ajudar com acessibilidade hoje? 👋</div>
+          </div>
+          <div class="chat-input-row">
+            <input type="text" id="chat-input" placeholder="Pergunte algo..." onkeydown="if(event.key==='Enter') enviarMensagem()">
+            <label class="btn btn-ghost btn-sm" title="Descrever imagem" aria-label="Enviar imagem para a IA descrever" style="width:auto;cursor:pointer">🖼️
+              <input type="file" id="chat-img-input" accept="image/*" style="display:none" onchange="enviarImagem(event)">
+            </label>
+            <button class="btn btn-ghost btn-sm chat-mic" id="chat-mic" onclick="ditar()" title="Falar a pergunta" aria-label="Ditar pergunta por voz" style="width:auto">🎤</button>
+            <button class="btn btn-primary btn-sm" onclick="enviarMensagem()" style="white-space:nowrap">Enviar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ESTUDOS -->
+      <div id="page-estudos" style="display:none">
+        <div class="page-title">Área de Estudos</div>
+        <div class="page-subtitle">Materiais e recursos para aprendizado</div>
+
+        <div class="resource-card" data-material="guia-acessibilidade">
+          <h3>📖 Guia de Acessibilidade</h3>
+          <p>Introdução às melhores práticas de acessibilidade na web — WCAG, ARIA e muito mais.</p>
+          <div class="material-acoes">
+            <a href="https://www.youtube.com/watch?v=20SHvU2PKsM" target="_blank" rel="noopener" onclick="iniciarMaterial('guia-acessibilidade')">Abrir guia →</a>
+            <button class="btn btn-ghost btn-sm material-status" onclick="avancarMaterial('guia-acessibilidade')">Começar</button>
+          </div>
+        </div>
+        <div class="resource-card" data-material="exercicios-praticos">
+          <h3>✏️ Exercícios Práticos</h3>
+          <p>Atividades para praticar o conteúdo aprendido nos cursos e consolidar seu conhecimento.</p>
+          <div class="material-acoes">
+            <a href="#" onclick="iniciarMaterial('exercicios-praticos'); navegar('cursos'); return false">Iniciar exercícios →</a>
+            <button class="btn btn-ghost btn-sm material-status" onclick="avancarMaterial('exercicios-praticos')">Começar</button>
+          </div>
+        </div>
+        <div class="resource-card" data-material="videos-apoio">
+          <h3>🎥 Vídeos de Apoio</h3>
+          <p>Coleção de vídeos curtos explicando conceitos de acessibilidade de forma visual.</p>
+          <div class="material-acoes">
+            <a href="https://www.youtube.com/c/WebParaTodos" target="_blank" rel="noopener" onclick="iniciarMaterial('videos-apoio')">Ver vídeos →</a>
+            <button class="btn btn-ghost btn-sm material-status" onclick="avancarMaterial('videos-apoio')">Começar</button>
+          </div>
+        </div>
+        <div class="resource-card" data-material="curso-libras">
+          <h3>🤟 Curso gratuito de Libras</h3>
+          <p>Aprenda os fundamentos da Língua Brasileira de Sinais com aulas gratuitas e no seu ritmo.</p>
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem">
+            <span class="tag green">Gratuito</span>
+            <span class="tag">Libras</span>
+          </div>
+          <div class="material-acoes">
+            <a href="https://kultivi.com/curso/libras-pratica-e-inclusao" target="_blank" rel="noopener" onclick="iniciarMaterial('curso-libras')">Acessar curso →</a>
+            <button class="btn btn-ghost btn-sm material-status" onclick="avancarMaterial('curso-libras')">Começar</button>
+          </div>
+        </div>
+        <div class="resource-card" data-material="dicionario-libras">
+          <h3>🔎 Dicionário visual de Libras</h3>
+          <p>Consulte sinais básicos por palavra e encontre uma referência visual para continuar aprendendo.</p>
+          <div class="material-acoes">
+            <button class="btn btn-ghost btn-sm" style="width:auto" onclick="iniciarMaterial('dicionario-libras'); abrirDicionarioLibras()">Consultar sinais →</button>
+            <button class="btn btn-ghost btn-sm material-status" onclick="avancarMaterial('dicionario-libras')">Começar</button>
+          </div>
+        </div>
+        <div class="resource-card" data-material="glossario">
+          <h3>📝 Glossário</h3>
+          <p>Termos e definições importantes do universo de acessibilidade digital.</p>
+          <div class="material-acoes">
+            <a href="#" onclick="iniciarMaterial('glossario'); abrirModal('modal-glossario'); return false">Acessar glossário →</a>
+            <button class="btn btn-ghost btn-sm material-status" onclick="avancarMaterial('glossario')">Começar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CURSOS -->
+      <div id="page-cursos" style="display:none">
+
+        <!-- Lista de cursos -->
+        <div id="cursos-lista">
+          <div class="page-title">Cursos Rápidos</div>
+          <div class="page-subtitle">Aprenda em minutos com nossos micro-cursos</div>
+        </div>
+
+        <!-- Tela do quiz (preenchida via JS) -->
+        <div id="cursos-quiz" style="display:none"></div>
+
+      </div>
+
+      <!-- PERFIL -->
+      <div id="page-perfil" style="display:none">
+        <div class="page-title">Meu Perfil</div>
+        <div class="page-subtitle">Informações da sua conta</div>
+
+        <div class="card">
+          <div class="avatar" id="avatar-letra">?</div>
+          <button class="btn btn-ghost btn-sm" style="width:auto;margin-bottom:1rem" onclick="abrirModal('modal-foto')">Mudar foto</button>
+          <div id="perfil-nome" style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:.25rem"></div>
+          <div id="perfil-email" style="color:var(--muted);font-size:.9rem;margin-bottom:1.25rem"></div>
+          <div class="info-row"><span class="info-label">Plano</span><span>Gratuito <span class="tag green" style="margin-left:.4rem">Ativo</span></span></div>
+          <div class="info-row"><span class="info-label">Cursos concluídos</span><span id="cursos-count">0</span></div>
+          <div class="info-row"><span class="info-label">Membro desde</span><span id="membro-desde">—</span></div>
+        </div>
+
+        <!-- Conquistas / gamificação -->
+        <div class="card">
+          <h3 style="font-family:'Syne',sans-serif">🏆 Conquistas</h3>
+          <div class="info-row"><span class="info-label">Cursos concluídos</span><span id="conq-contagem">0 de 4</span></div>
+          <div class="progress-bar" style="width:100%;margin:.6rem 0 1rem"><div class="progress-fill" id="conq-fill" style="width:0%"></div></div>
+          <div id="badges" class="badges"></div>
+          <button class="btn btn-primary btn-sm" id="btn-cert" style="width:auto;margin-top:1rem" onclick="emitirCertificado()">📜 Emitir certificado</button>
+          <div id="cert-hint" style="color:var(--muted);font-size:.8rem;margin-top:.5rem"></div>
+        </div>
+
+        <div style="display:flex;gap:.75rem;margin-top:.5rem">
+          <button class="btn btn-ghost" onclick="abrirAlterarSenha()">Alterar senha</button>
+          <button class="btn btn-danger" onclick="sair()">Sair da conta</button>
+        </div>
+      </div>
+
+      <!-- RODAPÉ -->
+      <footer class="rodape">
+        <button onclick="abrirModal('modal-contato')">Contato</button>
+        <span class="sep">·</span>
+        <button onclick="abrirModal('modal-termos')">Termos de Uso</button>
+        <span class="sep">·</span>
+        <button onclick="abrirModal('modal-privacidade')">Política de Privacidade</button>
+        <span class="sep">·</span>
+        <button onclick="abrirModal('modal-sobre')">Sobre o Projeto</button>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- Mobile nav -->
+  <nav class="mobile-nav">
+    <button class="mobile-nav-btn active" id="mnav-dashboard" onclick="navegar('dashboard')"><span class="icon">⚡</span>Dashboard</button>
+    <button class="mobile-nav-btn" id="mnav-estudos" onclick="navegar('estudos')"><span class="icon">📚</span>Estudos</button>
+    <button class="mobile-nav-btn" id="mnav-cursos" onclick="navegar('cursos')"><span class="icon">🎓</span>Cursos</button>
+    <button class="mobile-nav-btn" id="mnav-perfil" onclick="navegar('perfil')"><span class="icon">👤</span>Perfil</button>
+  </nav>
+</div>
+
+<!-- ===================== MODAL CADASTRO ===================== -->
+<div class="modal-overlay" id="modal-cadastro">
+  <div class="modal-box">
+    <button class="modal-close" onclick="fecharModal('modal-cadastro')">✕</button>
+    <h2>Criar conta</h2>
+    <div class="field"><label>Nome</label><input type="text" id="cad-nome" placeholder="Seu nome"></div>
+    <div class="field"><label>E-mail</label><input type="email" id="cad-email" placeholder="voce@email.com"></div>
+    <div class="field"><label>Senha</label><input type="password" id="cad-senha" placeholder="Mínimo 8 caracteres, 1 maiúscula e 1 especial"></div>
+    <label class="consentimento">
+      <input type="checkbox" id="cad-aceite-termos">
+      <span>Li e aceito os <button type="button" class="link-button" onclick="abrirModal('modal-termos')">Termos de Uso</button> e a <button type="button" class="link-button" onclick="abrirModal('modal-privacidade')">Política de Privacidade</button>.</span>
+    </label>
+    <div id="cad-erro" class="error-msg"></div>
+    <div id="cad-ok" class="success-msg">Conta criada! Faça login.</div>
+    <button class="btn btn-primary" onclick="fazerCadastro()" style="margin-top:.75rem">Criar conta</button>
+  </div>
+</div>
+
+<!-- ===================== MODAL TERMOS DE USO ===================== -->
+<div class="modal-overlay" id="modal-termos">
+  <div class="modal-box legal-modal">
+    <button class="btn btn-ghost btn-sm modal-sair" onclick="fecharModal('modal-termos')">Fechar</button>
+    <h2>📄 Termos de Uso</h2>
+    <div class="legal-content">
+      <p><strong>Última atualização: 19 de setembro de 2026</strong></p>
+      <p>Ao criar uma conta ou utilizar o UniSense, você concorda com estes Termos de Uso. O UniSense é um projeto piloto educacional de acessibilidade visual e auditiva, desenvolvido para apoiar estudos e organização de tarefas.</p>
+      <h3>1. Uso do serviço</h3>
+      <p>Você deve informar dados verdadeiros, manter sua senha em segurança e utilizar a plataforma de forma legal, respeitosa e compatível com sua finalidade. A conta é pessoal e não deve ser compartilhada.</p>
+      <h3>2. Assistente de IA</h3>
+      <p>As respostas do assistente são geradas automaticamente e podem conter erros. Elas têm finalidade educacional e não substituem orientação profissional, técnica, médica ou jurídica. Não envie senhas, documentos, dados de saúde ou outras informações sensíveis.</p>
+      <h3>3. Conteúdo e disponibilidade</h3>
+      <p>Os materiais do UniSense são oferecidos para fins educacionais. Podemos atualizar, suspender ou remover funcionalidades para manutenção e evolução do projeto piloto, sem garantia de disponibilidade contínua.</p>
+      <h3>4. Conta e encerramento</h3>
+      <p>Você pode solicitar a exclusão da conta pelo e-mail de contato informado no aplicativo. Podemos restringir o acesso quando houver uso abusivo, ilícito ou que comprometa a segurança da plataforma.</p>
+      <h3>5. Aceite</h3>
+      <p>Ao marcar a caixa de aceite no cadastro, você confirma que leu e concorda com estes Termos de Uso e com a Política de Privacidade.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL RECUPERAÇÃO ===================== -->
+<div class="modal-overlay" id="modal-recuperacao">
+  <div class="modal-box">
+    <button class="modal-close" onclick="fecharModal('modal-recuperacao')">✕</button>
+    <h2>Recuperar senha</h2>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:1rem">Enviaremos um código para o seu e-mail. Depois informe o código e a nova senha.</p>
+    <div class="field"><label>E-mail</label><input type="email" id="rec-email" placeholder="voce@email.com"></div>
+    <button class="btn btn-ghost btn-sm" style="width:auto" onclick="solicitarCodigo()">Enviar código</button>
+    <div id="rec-info" style="color:var(--muted);font-size:.85rem;margin-top:.5rem"></div>
+    <div class="field" style="margin-top:1rem"><label>Código (6 dígitos)</label><input type="text" id="rec-codigo" inputmode="numeric" maxlength="6" placeholder="000000"></div>
+    <div class="field"><label>Nova senha</label><input type="password" id="rec-senha" placeholder="Mínimo 8 caracteres, 1 maiúscula e 1 especial"></div>
+    <div id="rec-erro" class="error-msg"></div>
+    <div id="rec-ok" class="success-msg">Senha redefinida! Faça login.</div>
+    <button class="btn btn-primary" onclick="fazerRecuperacao()" style="margin-top:.75rem">Redefinir senha</button>
+  </div>
+</div>
+
+<!-- ===================== MODAL ALTERAR SENHA ===================== -->
+<div class="modal-overlay" id="modal-senha">
+  <div class="modal-box">
+    <button class="modal-close" onclick="fecharModal('modal-senha')">✕</button>
+    <h2>Alterar senha</h2>
+    <div class="field"><label>Senha atual</label><input type="password" id="senha-atual" placeholder="••••••••"></div>
+    <div class="field"><label>Nova senha</label><input type="password" id="senha-nova" placeholder="Mínimo 8 caracteres, 1 maiúscula e 1 especial"></div>
+    <div id="senha-erro" class="error-msg"></div>
+    <div id="senha-ok" class="success-msg">Senha alterada com sucesso!</div>
+    <button class="btn btn-primary" onclick="alterarSenha()" style="margin-top:.75rem">Alterar</button>
+  </div>
+</div>
+
+<!-- ===================== MODAL GLOSSÁRIO ===================== -->
+<div class="modal-overlay" id="modal-glossario">
+  <div class="modal-box" style="max-width:560px">
+    <button class="modal-close" onclick="fecharModal('modal-glossario')">✕</button>
+    <h2>Glossário de Acessibilidade</h2>
+    <div style="max-height:60vh;overflow-y:auto;text-align:left">
+      <div class="glossario-item">
+        <strong>Acessibilidade digital</strong>
+        <p>Prática de criar sites, apps e conteúdos que qualquer pessoa, inclusive com deficiência, consiga usar.</p>
+      </div>
+      <div class="glossario-item">
+        <strong>WCAG</strong>
+        <p>Diretrizes internacionais de acessibilidade para a web (Web Content Accessibility Guidelines).</p>
+      </div>
+      <div class="glossario-item">
+        <strong>ARIA</strong>
+        <p>Conjunto de atributos HTML que melhora a acessibilidade dos elementos para tecnologias assistivas.</p>
+      </div>
+      <div class="glossario-item">
+        <strong>Leitor de tela</strong>
+        <p>Programa que lê em voz alta (ou em braille) o conteúdo da tela; usado por pessoas cegas ou com baixa visão.</p>
+      </div>
+      <div class="glossario-item">
+        <strong>Texto alternativo (alt)</strong>
+        <p>Descrição textual de uma imagem, lida pelos leitores de tela para quem não enxerga a imagem.</p>
+      </div>
+      <div class="glossario-item">
+        <strong>Audiodescrição</strong>
+        <p>Narração que descreve elementos visuais (cenas, expressões, ações) para pessoas com deficiência visual.</p>
+      </div>
+      <div class="glossario-item">
+        <strong>Libras</strong>
+        <p>Língua Brasileira de Sinais, idioma das pessoas surdas no Brasil.</p>
+      </div>
+      <div class="glossario-item">
+        <strong>Legendas</strong>
+        <p>Texto que transcreve falas e sons; essencial para pessoas surdas ou com deficiência auditiva.</p>
+      </div>
+      <div class="glossario-item">
+        <strong>Contraste</strong>
+        <p>Diferença de cor entre texto e fundo; bom contraste facilita a leitura para pessoas com baixa visão.</p>
+      </div>
+      <div class="glossario-item">
+        <strong>Navegação por teclado</strong>
+        <p>Usar o site apenas pelo teclado (ex.: tecla Tab); importante para quem não usa mouse.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL DICIONÁRIO VISUAL DE LIBRAS ===================== -->
+<div class="modal-overlay" id="modal-dicionario-libras">
+  <div class="modal-box" style="max-width:600px">
+    <button class="modal-close" onclick="fecharModal('modal-dicionario-libras')">✕</button>
+    <h2>🔎 Dicionário visual de Libras</h2>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:1rem">Pesquise uma palavra para ver uma descrição do sinal e consultar uma referência visual.</p>
+    <label class="sr-only" for="busca-libras">Pesquisar sinal em Libras</label>
+    <input class="estudo-busca" id="busca-libras" type="search" placeholder="Ex.: olá, obrigado, família..." oninput="filtrarSinaisLibras()">
+    <div id="sinais-libras" class="sinais-grid" aria-live="polite"></div>
+    <p id="sinais-libras-vazio" class="tarefas-vazio" style="display:none">Nenhum sinal encontrado. Tente outra palavra.</p>
+    <a class="recurso-externo" href="https://www.ines.gov.br/dicionario-de-libras/" target="_blank" rel="noopener">Consultar dicionário completo do INES →</a>
+  </div>
+</div>
+
+<!-- ===================== MODAL HISTÓRICO DE CONVERSAS ===================== -->
+<div class="modal-overlay" id="modal-historico">
+  <div class="modal-box" style="max-width:560px">
+    <button class="btn btn-ghost btn-sm modal-sair" onclick="fecharModal('modal-historico')">❌ Sair</button>
+    <h2>🕘 Histórico de conversas</h2>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:1rem">Conversas salvas ao clicar em “Nova conversa”.</p>
+    <div id="conversas-lista" style="max-height:55vh;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- ===================== MODAL FOCO DIÁRIO (TAREFAS) ===================== -->
+<div class="modal-overlay" id="modal-tarefas">
+  <div class="modal-box" style="max-width:560px">
+    <button class="btn btn-ghost btn-sm modal-sair" onclick="fecharModal('modal-tarefas')">❌ Sair</button>
+    <h2>🎯 Foco Diário</h2>
+
+    <div style="display:flex;gap:.6rem;margin:.25rem 0 1rem">
+      <button class="btn btn-primary btn-sm" style="width:auto" onclick="novaTarefa()">➕ Criar tarefa</button>
+    </div>
+
+    <!-- Formulário de criar/editar (injetado por JS) -->
+    <div id="tarefa-form"></div>
+
+    <!-- Lista de tarefas -->
+    <div id="tarefas-lista" style="max-height:52vh;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- ===================== MODAL FOTO DE PERFIL ===================== -->
+<div class="modal-overlay" id="modal-foto">
+  <div class="modal-box" style="max-width:460px">
+    <button class="modal-close" onclick="fecharModal('modal-foto')" aria-label="Fechar">✕</button>
+    <h2>Foto de perfil</h2>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:1rem">Escolha um emoji ou carregue uma imagem da sua galeria.</p>
+
+    <div id="emoji-grid" class="emoji-grid"></div>
+
+    <div style="display:flex;gap:.6rem;margin-top:1rem;flex-wrap:wrap">
+      <label class="btn btn-ghost btn-sm" style="width:auto;cursor:pointer">
+        📁 Carregar imagem
+        <input type="file" id="foto-upload" accept="image/*" style="display:none" onchange="carregarImagem(event)">
+      </label>
+      <button class="btn btn-ghost btn-sm" style="width:auto" onclick="usarInicial()">Usar inicial do nome</button>
+    </div>
+    <div id="foto-erro" class="error-msg"></div>
+  </div>
+</div>
+
+<!-- ===================== MODAL AJUSTAR FOTO (CROP) ===================== -->
+<div class="modal-overlay" id="modal-crop">
+  <div class="modal-box" style="max-width:340px">
+    <button class="modal-close" onclick="cancelarCrop()" aria-label="Fechar">✕</button>
+    <h2>Ajustar foto</h2>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:1rem">Arraste para posicionar e use o controle de zoom.</p>
+
+    <div class="crop-wrap">
+      <canvas id="crop-canvas" width="260" height="260"></canvas>
+    </div>
+
+    <div class="crop-zoom-row">
+      <span aria-hidden="true">➖</span>
+      <input type="range" id="crop-zoom" min="1" max="3" step="0.01" value="1" aria-label="Zoom">
+      <span aria-hidden="true">➕</span>
+    </div>
+
+    <div style="display:flex;gap:.6rem;margin-top:1rem">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="cancelarCrop()">Cancelar</button>
+      <button class="btn btn-primary btn-sm" style="flex:1" onclick="aplicarCrop()">Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== WIDGET ACESSIBILIDADE ===================== -->
+<div class="a11y-widget">
+  <div class="a11y-panel" id="a11y-panel" style="display:none">
+    <button id="btn-contraste" onclick="toggleContraste()">🌓 Alto contraste</button>
+    <div class="row">
+      <button onclick="mudarFonte(-1)" aria-label="Diminuir fonte">A−</button>
+      <button onclick="mudarFonte(0)" aria-label="Tamanho padrão">A</button>
+      <button onclick="mudarFonte(1)" aria-label="Aumentar fonte">A+</button>
+    </div>
+    <button id="btn-dislexia" onclick="toggleDislexia()">📖 Fonte p/ dislexia</button>
+    <button id="btn-links" onclick="toggleLinks()">🔗 Destacar links</button>
+    <button id="btn-movimento" onclick="toggleMovimento()">🎬 Reduzir movimento</button>
+    <button id="btn-voz" onclick="comandoVoz()">🎙️ Comando de voz</button>
+    <button onclick="resetarA11y()">↺ Resetar</button>
+  </div>
+  <button class="a11y-btn" onclick="toggleA11y()" aria-label="Acessibilidade" title="Opções de acessibilidade">♿</button>
+</div>
+
+<!-- ===================== MODAL CERTIFICADO ===================== -->
+<div class="modal-overlay" id="modal-certificado">
+  <div class="modal-box" style="max-width:640px">
+    <button class="btn btn-ghost btn-sm modal-sair" onclick="fecharModal('modal-certificado')">Fechar</button>
+    <div id="cert-print" class="certificado">
+      <div class="cert-logo">UniSense</div>
+      <div class="cert-titulo">Certificado de Conclusão</div>
+      <p class="cert-corpo">Certificamos que</p>
+      <div class="cert-nome" id="cert-nome">—</div>
+      <p class="cert-corpo">concluiu os cursos de acessibilidade do UniSense:</p>
+      <div class="cert-cursos" id="cert-cursos"></div>
+      <div class="cert-data" id="cert-data"></div>
+    </div>
+    <button class="btn btn-primary btn-sm" style="width:auto;margin-top:1rem" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+  </div>
+</div>
+
+<!-- ===================== MODAL ONBOARDING (perfil de acessibilidade) ===================== -->
+<div class="modal-overlay" id="modal-onboarding">
+  <div class="modal-box" style="max-width:480px">
+    <h2>👋 Vamos ajustar a acessibilidade</h2>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:1rem">Marque o que se aplica a você. Dá pra mudar depois no botão ♿ a qualquer momento.</p>
+    <label class="ob-opcao"><input type="checkbox" id="ob-visao"> Tenho baixa visão (fonte maior + contraste)</label>
+    <label class="ob-opcao"><input type="checkbox" id="ob-dislexia"> Tenho dislexia ou dificuldade de leitura</label>
+    <label class="ob-opcao"><input type="checkbox" id="ob-contraste"> Prefiro alto contraste</label>
+    <label class="ob-opcao"><input type="checkbox" id="ob-movimento"> Reduzir animações e movimento</label>
+    <div style="display:flex;gap:.6rem;margin-top:1.25rem">
+      <button class="btn btn-primary btn-sm" style="width:auto" onclick="aplicarOnboarding()">Aplicar</button>
+      <button class="btn btn-ghost btn-sm" style="width:auto" onclick="pularOnboarding()">Pular</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL CONTATO ===================== -->
+<div class="modal-overlay" id="modal-contato">
+  <div class="modal-box" style="max-width:420px">
+    <button class="btn btn-ghost btn-sm modal-sair" onclick="fecharModal('modal-contato')">Fechar</button>
+    <h2>📧 Contato</h2>
+    <p style="color:var(--muted);font-size:.9rem;line-height:1.6">
+      Fale com a equipe do UniSense:<br>
+      <strong style="color:var(--text)">contato@unisense.com.br</strong><br><br>
+      Projeto piloto de acessibilidade — PJP / SENAC-SC.
+    </p>
+  </div>
+</div>
+
+<!-- ===================== MODAL POLÍTICA DE PRIVACIDADE ===================== -->
+<div class="modal-overlay" id="modal-privacidade">
+  <div class="modal-box" style="max-width:520px">
+    <button class="btn btn-ghost btn-sm modal-sair" onclick="fecharModal('modal-privacidade')">Fechar</button>
+    <h2>🔒 Política de Privacidade</h2>
+    <div class="legal-content">
+      <p><strong>Última atualização: 19 de setembro de 2026</strong></p>
+      <p>Esta Política explica como o UniSense coleta, utiliza, armazena e protege informações durante o uso do aplicativo.</p>
+      <h3>1. Dados coletados</h3>
+      <p>Coletamos nome, e-mail e senha para criar e proteger sua conta. Também podemos armazenar foto, preferências de acessibilidade, progresso em cursos, tarefas e histórico de conversas, quando esses recursos forem utilizados.</p>
+      <h3>2. Como usamos os dados</h3>
+      <p>Usamos essas informações para autenticar você, manter a conta, personalizar a experiência, registrar seu progresso e oferecer as funcionalidades solicitadas. Perguntas e imagens enviadas ao assistente podem ser encaminhadas ao serviço de IA necessário para gerar a resposta.</p>
+      <h3>3. Segurança e compartilhamento</h3>
+      <p>A senha é armazenada em formato protegido. Não vendemos seus dados. Compartilhamos apenas o conteúdo necessário com provedores que participam do funcionamento de um recurso solicitado, como o serviço de IA, e recomendamos não inserir dados sensíveis.</p>
+      <h3>4. Seus direitos</h3>
+      <p>Você pode solicitar acesso, correção ou exclusão dos seus dados pelo e-mail contato@unisense.com.br. A exclusão poderá impedir o uso de recursos que dependem da conta.</p>
+      <h3>5. Projeto piloto</h3>
+      <p>O UniSense é um projeto educacional em evolução. Esta política pode ser atualizada para refletir mudanças no aplicativo; a versão vigente estará disponível nesta tela.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL SOBRE O PROJETO ===================== -->
+<div class="modal-overlay" id="modal-sobre">
+  <div class="modal-box" style="max-width:520px">
+    <button class="btn btn-ghost btn-sm modal-sair" onclick="fecharModal('modal-sobre')">Fechar</button>
+    <h2>ℹ️ Sobre o Projeto</h2>
+    <div style="color:var(--muted);font-size:.88rem;line-height:1.6;max-height:60vh;overflow-y:auto">
+      <p>O <strong style="color:var(--text)">UniSense</strong> é um sistema de acessibilidade <strong style="color:var(--text)">visual e auditiva</strong>, criado para ajudar pessoas com dificuldades visuais, auditivas e cognitivas a estudar e organizar sua rotina.</p>
+      <p style="margin-top:.6rem">Recursos: assistente de IA, leitura em voz alta, tradução em Libras (VLibras), ditado por voz, alto contraste, ajuste de fonte, cursos rápidos e gestão de tarefas com apoio da IA.</p>
+      <p style="margin-top:.6rem">Projeto piloto desenvolvido para fins educacionais — PJP / SENAC-SC.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== VLIBRAS (tradução em Libras) ===================== -->
+<div vw class="enabled">
+  <div vw-access-button class="active"></div>
+  <div vw-plugin-wrapper>
+    <div class="vw-plugin-top-wrapper"></div>
+  </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+  try { new window.VLibras.Widget('https://vlibras.gov.br/app'); } catch (e) {}
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>
