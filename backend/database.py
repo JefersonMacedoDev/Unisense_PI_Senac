@@ -1,7 +1,13 @@
 import os
+from datetime import datetime, timezone
 
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
+
+
+def utc_now_naive():
+    """Return UTC in the naive format used by the existing database columns."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

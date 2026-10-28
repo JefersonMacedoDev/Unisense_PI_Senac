@@ -45,14 +45,13 @@ SISTEMA_PADRAO = (
 
 def responder_ia(pergunta, sistema=None, modelo=None):
 
-    if not pergunta:
+    if not isinstance(pergunta, str) or not pergunta.strip():
         raise IAServiceError("Pergunta inválida.")
 
     if client is None:
         raise IAServiceError("Serviço de IA não configurado.")
 
     for tentativa in range(3):
-
         try:
             resposta = client.models.generate_content(
                 model=modelo or MODELO_IA,
@@ -64,24 +63,23 @@ def responder_ia(pergunta, sistema=None, modelo=None):
                 ),
             )
 
-            texto = resposta.text
-
-            if texto:
-                return texto.strip()
-
+            texto = resposta.text or ""
         except Exception as erro:
+            if "503" not in str(erro):
+                raise IAServiceError(
+                    "A IA está temporariamente indisponível."
+                ) from erro
+            if tentativa == 2:
+                raise IAServiceError(
+                    "Não foi possível obter uma resposta da IA."
+                ) from erro
+            time.sleep(3)
+            continue
 
-            erro_texto = str(erro)
+        if texto.strip():
+            return texto.strip()
 
-            if "503" in erro_texto:
-
-                time.sleep(3)
-
-                continue
-
-                raise IAServiceError("Não foi possível obter uma resposta da IA.") from erro
-
-            raise IAServiceError("A IA está temporariamente indisponível.")
+    raise IAServiceError("Não foi possível obter uma resposta da IA.")
 
 
 def _extrair_passos(texto):

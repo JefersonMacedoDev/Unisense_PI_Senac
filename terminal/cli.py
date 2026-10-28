@@ -11,19 +11,13 @@ def iniciar_terminal():
         opcao = input("\nEscolha: ")
 
         if opcao == "1":
-
-            email = input("Email: ")
-
-            senha = input("Senha: ")
-
+            input("Email: ")
+            input("Senha: ")
             print("\nLogin enviado.")
 
         elif opcao == "2":
-
-            email = input("Novo email: ")
-
-            senha = input("Nova senha: ")
-
+            input("Novo email: ")
+            input("Nova senha: ")
             print("\nCadastro enviado.")
 
         elif opcao == "3":

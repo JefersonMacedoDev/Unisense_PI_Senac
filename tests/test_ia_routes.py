@@ -1,4 +1,5 @@
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -8,7 +9,54 @@ from sqlalchemy import select
 from backend.app import app
 from backend.database import SessionLocal
 from backend.models import Historico, Usuario
+from backend.services import ia_service
 from backend.services.ia_service import IAInputError, IAServiceError
+
+
+class TestIAService(unittest.TestCase):
+    def test_responder_ia_tenta_novamente_apos_503(self):
+        resposta = SimpleNamespace(text="Resposta simulada")
+        with patch("backend.services.ia_service.client") as client, \
+             patch("backend.services.ia_service.time.sleep") as dormir:
+            client.models.generate_content.side_effect = [
+                Exception("503 Service Unavailable"),
+                resposta,
+            ]
+
+            resultado = ia_service.responder_ia("Pergunta de teste")
+
+        self.assertEqual(resultado, "Resposta simulada")
+        self.assertEqual(client.models.generate_content.call_count, 2)
+        dormir.assert_called_once_with(3)
+
+    def test_responder_ia_falha_apos_tres_erros_503(self):
+        with patch("backend.services.ia_service.client") as client, \
+             patch("backend.services.ia_service.time.sleep") as dormir:
+            client.models.generate_content.side_effect = Exception(
+                "503 Service Unavailable"
+            )
+
+            with self.assertRaisesRegex(
+                IAServiceError,
+                "Não foi possível obter uma resposta da IA.",
+            ):
+                ia_service.responder_ia("Pergunta de teste")
+
+        self.assertEqual(client.models.generate_content.call_count, 3)
+        self.assertEqual(dormir.call_count, 2)
+
+    def test_responder_ia_falha_apos_tres_respostas_vazias(self):
+        resposta = SimpleNamespace(text="  ")
+        with patch("backend.services.ia_service.client") as client:
+            client.models.generate_content.return_value = resposta
+
+            with self.assertRaisesRegex(
+                IAServiceError,
+                "Não foi possível obter uma resposta da IA.",
+            ):
+                ia_service.responder_ia("Pergunta de teste")
+
+        self.assertEqual(client.models.generate_content.call_count, 3)
 
 
 class TestIARoutes(unittest.TestCase):

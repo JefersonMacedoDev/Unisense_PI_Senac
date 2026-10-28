@@ -1,12 +1,10 @@
 import os
+import subprocess
 
 
 def limpar_tela():
-
-    os.system(
-        "cls" if os.name == "nt"
-        else "clear"
-    )
+    comando = ["cmd", "/c", "cls"] if os.name == "nt" else ["clear"]
+    subprocess.run(comando, check=True)
 
 
 def exibir_cabecalho(titulo):

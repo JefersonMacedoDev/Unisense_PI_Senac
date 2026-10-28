@@ -2,12 +2,12 @@ import json
 import re
 import secrets
 from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from sqlalchemy import select
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from backend.database import SessionLocal
+from backend.database import SessionLocal, utc_now_naive
 from backend.models import Usuario
 
 
@@ -123,7 +123,7 @@ def criar_codigo_recuperacao(email):
             return None
         codigo = "%06d" % secrets.randbelow(1000000)
         usuario.reset_codigo = codigo
-        usuario.reset_expira = datetime.utcnow() + timedelta(minutes=15)
+        usuario.reset_expira = utc_now_naive() + timedelta(minutes=15)
         banco.commit()
     return codigo
 
@@ -135,7 +135,7 @@ def confirmar_recuperacao(email, codigo, senha_nova):
             return "Solicite um novo código."
         if usuario.reset_codigo != codigo:
             return "Código incorreto."
-        if not usuario.reset_expira or datetime.utcnow() > usuario.reset_expira:
+        if not usuario.reset_expira or utc_now_naive() > usuario.reset_expira:
             return "Código expirado. Solicite um novo."
 
         usuario.senha = generate_password_hash(senha_nova)
