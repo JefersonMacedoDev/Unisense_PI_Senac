@@ -27,9 +27,9 @@ class TestIAService(unittest.TestCase):
 
         self.assertEqual(resultado, "Resposta simulada")
         self.assertEqual(client.models.generate_content.call_count, 2)
-        dormir.assert_called_once_with(3)
+        dormir.assert_called_once_with(0.5)
 
-    def test_responder_ia_falha_apos_tres_erros_503(self):
+    def test_responder_ia_falha_apos_duas_tentativas_503(self):
         with patch("backend.services.ia_service.client") as client, \
              patch("backend.services.ia_service.time.sleep") as dormir:
             client.models.generate_content.side_effect = Exception(
@@ -38,14 +38,14 @@ class TestIAService(unittest.TestCase):
 
             with self.assertRaisesRegex(
                 IAServiceError,
-                "Não foi possível obter uma resposta da IA.",
+                "A IA está temporariamente indisponível.",
             ):
                 ia_service.responder_ia("Pergunta de teste")
 
-        self.assertEqual(client.models.generate_content.call_count, 3)
-        self.assertEqual(dormir.call_count, 2)
+        self.assertEqual(client.models.generate_content.call_count, 2)
+        dormir.assert_called_once_with(0.5)
 
-    def test_responder_ia_falha_apos_tres_respostas_vazias(self):
+    def test_responder_ia_falha_apos_duas_respostas_vazias(self):
         resposta = SimpleNamespace(text="  ")
         with patch("backend.services.ia_service.client") as client:
             client.models.generate_content.return_value = resposta
@@ -56,7 +56,42 @@ class TestIAService(unittest.TestCase):
             ):
                 ia_service.responder_ia("Pergunta de teste")
 
-        self.assertEqual(client.models.generate_content.call_count, 3)
+        self.assertEqual(client.models.generate_content.call_count, 2)
+
+    def test_responder_ia_nao_repete_erro_nao_temporario(self):
+        with patch("backend.services.ia_service.client") as client, \
+             patch("backend.services.ia_service.time.sleep") as dormir:
+            client.models.generate_content.side_effect = Exception("404 NOT_FOUND")
+
+            with self.assertRaisesRegex(
+                IAServiceError,
+                "A IA está temporariamente indisponível.",
+            ):
+                ia_service.responder_ia("Pergunta de teste")
+
+        client.models.generate_content.assert_called_once()
+        dormir.assert_not_called()
+
+    def test_responder_ia_inclui_contexto_recente(self):
+        with patch("backend.services.ia_service.client") as client:
+            client.models.generate_content.return_value = SimpleNamespace(
+                text="Resposta contextual"
+            )
+
+            resultado = ia_service.responder_ia(
+                "E o segundo passo?",
+                historico=[{
+                    "pergunta": "Como começo?",
+                    "resposta": "Comece pelo planejamento.",
+                }],
+            )
+
+        self.assertEqual(resultado, "Resposta contextual")
+        conteudos = client.models.generate_content.call_args.kwargs["contents"]
+        self.assertEqual(
+            [conteudo.parts[0].text for conteudo in conteudos],
+            ["Como começo?", "Comece pelo planejamento.", "E o segundo passo?"],
+        )
 
 
 class TestIARoutes(unittest.TestCase):
@@ -95,13 +130,15 @@ class TestIARoutes(unittest.TestCase):
         banco.close()
 
     def test_ia_retorna_resposta_e_registra_historico(self):
-        with patch("backend.routes.ia_routes.responder_ia", return_value="Resposta simulada") as responder, \
+        with patch("backend.routes.ia_routes.buscar_contexto", return_value=[]) as contexto, \
+             patch("backend.routes.ia_routes.responder_ia", return_value="Resposta simulada") as responder, \
              patch("backend.routes.ia_routes.registrar_mensagem") as registrar:
             resposta = self.client.post("/ia", json={"pergunta": "Como estudar?"})
 
         self.assertEqual(resposta.status_code, 200)
         self.assertEqual(resposta.json(), {"status": "ok", "resposta": "Resposta simulada"})
-        responder.assert_called_once_with("Como estudar?")
+        contexto.assert_called_once()
+        responder.assert_called_once_with("Como estudar?", historico=[])
         args = registrar.call_args.args
         self.assertEqual(len(args), 3)
         self.assertIsInstance(args[0], int)

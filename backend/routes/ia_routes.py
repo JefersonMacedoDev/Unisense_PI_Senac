@@ -2,6 +2,7 @@ import logging
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
+from starlette.concurrency import run_in_threadpool
 
 from backend.services.ia_service import (
     IAInputError,
@@ -10,7 +11,7 @@ from backend.services.ia_service import (
     explicar_simples,
     responder_ia,
 )
-from backend.services.historico_service import registrar_mensagem
+from backend.services.historico_service import buscar_contexto, registrar_mensagem
 
 
 ia_bp = APIRouter()
@@ -61,9 +62,14 @@ async def ia(request: Request):
             )
 
         pergunta = dados["pergunta"]
-        resposta = responder_ia(pergunta)
+        historico = await run_in_threadpool(buscar_contexto, usuario_id)
+        resposta = await run_in_threadpool(
+            responder_ia,
+            pergunta,
+            historico=historico,
+        )
 
-        registrar_mensagem(usuario_id, pergunta, resposta)
+        await run_in_threadpool(registrar_mensagem, usuario_id, pergunta, resposta)
 
         return {"status": "ok", "resposta": resposta}
     except IAServiceError as erro:
@@ -86,7 +92,8 @@ async def simplificar(request: Request):
                 {"status": "erro", "mensagem": "Texto inválido"},
                 status_code=400
             )
-        return {"status": "ok", "resposta": explicar_simples(texto)}
+        resposta = await run_in_threadpool(explicar_simples, texto)
+        return {"status": "ok", "resposta": resposta}
     except IAServiceError as erro:
         return _erro_ia(erro)
     except Exception:
@@ -107,7 +114,8 @@ async def descrever(request: Request):
                 {"status": "erro", "mensagem": "Imagem inválida"},
                 status_code=400
             )
-        return {"status": "ok", "resposta": descrever_imagem(imagem)}
+        resposta = await run_in_threadpool(descrever_imagem, imagem)
+        return {"status": "ok", "resposta": resposta}
     except IAInputError as erro:
         return JSONResponse(
             {"status": "erro", "mensagem": str(erro)},

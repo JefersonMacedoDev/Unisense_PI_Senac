@@ -30,6 +30,23 @@ def listar_atual(usuario_id):
         ]
 
 
+def buscar_contexto(usuario_id, limite=4):
+    with SessionLocal() as banco:
+        linhas = banco.execute(
+            select(Historico.pergunta, Historico.resposta)
+            .where(
+                Historico.usuario_id == usuario_id,
+                Historico.conversa.is_(None),
+            )
+            .order_by(Historico.id.desc())
+            .limit(limite)
+        ).all()
+    return [
+        {"pergunta": pergunta, "resposta": resposta}
+        for pergunta, resposta in reversed(linhas)
+    ]
+
+
 def arquivar_atual(usuario_id, nome):
     with SessionLocal() as banco:
         linhas = banco.scalars(

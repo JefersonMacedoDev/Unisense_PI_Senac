@@ -987,10 +987,21 @@ function falar(texto) {
   window.speechSynthesis.speak(fala)
 }
 
+let IA_MENSAGEM_ENVIANDO = false
+
 async function enviarMensagem() {
+  if (IA_MENSAGEM_ENVIANDO) return
+
   const input = document.getElementById("chat-input")
   const texto = input.value.trim()
   if (!texto) return
+
+  IA_MENSAGEM_ENVIANDO = true
+  const botaoEnviar = document.getElementById("chat-enviar")
+  if (botaoEnviar) {
+    botaoEnviar.disabled = true
+    botaoEnviar.textContent = "Enviando…"
+  }
 
   adicionarMsg(texto, "user")
   input.value = ""
@@ -1014,7 +1025,13 @@ async function enviarMensagem() {
     adicionarMsg(dados.resposta || dados.mensagem || "Não consegui responder agora.", "assistant")
   } catch {
     typing.remove()
-    adicionarMsg("Erro de conexão. Verifique sua internet.", "assistant")
+    adicionarMsg("Não foi possível conectar ao assistente. Tente novamente.", "assistant")
+  } finally {
+    IA_MENSAGEM_ENVIANDO = false
+    if (botaoEnviar) {
+      botaoEnviar.disabled = false
+      botaoEnviar.textContent = "Enviar"
+    }
   }
 }
 
