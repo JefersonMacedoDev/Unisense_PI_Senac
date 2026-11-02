@@ -12,6 +12,23 @@ from backend.services.ia_service import (
     responder_ia,
 )
 from backend.services.historico_service import buscar_contexto, registrar_mensagem
+from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
+import google.generativeai as genai
+
+router = APIRouter()
+
+@router.post("/chat-stream")
+async def chat_stream(prompt: str):
+    model = genai.GenerativeModel("gemini-1.5-flash") # Use o modelo mais rápido!
+    response = model.generate_content(prompt, stream=True)
+
+    def generate():
+        for chunk in response:
+            if chunk.text:
+                yield f"data: {chunk.text}\n\n"
+
+    return StreamingResponse(generate(), media_type="text/event-stream")
 
 
 ia_bp = APIRouter()

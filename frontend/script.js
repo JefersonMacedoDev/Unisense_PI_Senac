@@ -1625,3 +1625,23 @@ async function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init)
+
+async function enviarPromptStream(prompt) {
+    const response = await fetch('/api/ia/chat-stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let elementoMensagem = criarElementoMensagem(); // Adiciona div no chat
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
+        // Processa o formato SSE e atualiza o texto na tela em tempo real
+        elementoMensagem.innerText += chunk.replace(/^data:\s*/, '');
+    }
+}
