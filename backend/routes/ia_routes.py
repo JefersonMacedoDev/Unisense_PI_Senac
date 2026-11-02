@@ -3,7 +3,6 @@ import logging
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from starlette.concurrency import run_in_threadpool
-
 from backend.services.ia_service import (
     IAInputError,
     IAServiceError,
@@ -15,6 +14,16 @@ from backend.services.historico_service import buscar_contexto, registrar_mensag
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 import google.generativeai as genai
+from google import genai
+import os
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+
+router = APIRouter(prefix="/ia", tags=["IA"])
+
+# O cliente lê automaticamente a GEMINI_API_KEY das variáveis de ambiente
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 router = APIRouter()
 
