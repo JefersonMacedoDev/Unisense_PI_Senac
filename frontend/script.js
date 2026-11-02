@@ -438,7 +438,7 @@ function emitirCertificado() {
   document.getElementById("cert-nome").textContent = getNome()
   const titulos = concluidos.map(p => (CURSOS[p.curso_id] && CURSOS[p.curso_id].titulo) || p.curso_id)
   document.getElementById("cert-cursos").innerHTML =
-    titulos.map(t => `<div>• ${escHtml(t)}</div>`).join("")
+    titulos.map(t => `<li>${escHtml(t)}</li>`).join("")
   document.getElementById("cert-data").textContent =
     "Emitido em " + new Date().toLocaleDateString("pt-BR")
 

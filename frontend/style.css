@@ -724,25 +724,88 @@ body {
 .badge.locked { opacity: .4; filter: grayscale(1); }
 #btn-cert:disabled { opacity: .5; cursor: not-allowed; }
 
+.cert-modal { max-width: 960px; }
+.cert-acoes { display: flex; flex-direction: column; align-items: center; gap: .5rem; margin-top: 1rem; }
+.cert-acoes span { color: var(--muted); font-size: .8rem; text-align: center; }
 .certificado {
-  border: 3px solid var(--accent);
-  border-radius: 14px;
-  padding: 2rem 1.5rem;
-  text-align: center;
-  background: var(--surface);
+  --cert-ink: #17324d;
+  --cert-accent: #1d6b73;
+  --cert-muted: #526579;
+  padding: 12px;
+  background: #f3f6f7;
+  color: var(--cert-ink);
+  font-family: 'DM Sans', sans-serif;
 }
-.cert-logo { font-family: 'Syne', sans-serif; font-weight: 800; color: var(--accent); font-size: 1.6rem; }
-.cert-titulo { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.3rem; margin: .5rem 0 1rem; }
-.cert-corpo { color: var(--muted); font-size: .9rem; margin: .3rem 0; }
-.cert-nome { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem; margin: .5rem 0; }
-.cert-cursos { margin: .75rem 0; font-size: .9rem; line-height: 1.7; }
-.cert-data { color: var(--muted); font-size: .85rem; margin-top: 1rem; }
+.cert-moldura {
+  min-height: 480px;
+  border: 1px solid #b8c9cb;
+  outline: 5px solid #f3f6f7;
+  box-shadow: inset 0 0 0 5px #fff, inset 0 0 0 6px #b8c9cb;
+  padding: 2rem 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  background: #fff;
+}
+.cert-cabecalho { display: flex; flex-direction: column; align-items: center; }
+.cert-selo {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--cert-accent);
+  border-radius: 50%;
+  color: var(--cert-accent);
+  font-family: 'Syne', sans-serif;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+.cert-logo { margin-top: .35rem; color: var(--cert-ink); font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 800; }
+.cert-linha { width: 72px; border-top: 2px solid var(--cert-accent); margin: .6rem 0 .4rem; }
+.cert-submarca { color: var(--cert-muted); font-size: .58rem; font-weight: 600; letter-spacing: .18em; }
+.cert-conteudo { width: 100%; margin: 1.5rem 0; }
+.cert-chamada { color: var(--cert-accent); font-size: .78rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.cert-nome { margin: .6rem 0 .8rem; color: var(--cert-ink); font-family: 'Syne', sans-serif; font-size: clamp(1.5rem, 4vw, 2.4rem); font-weight: 800; overflow-wrap: anywhere; }
+.cert-corpo { color: var(--cert-muted); font-size: .9rem; }
+.cert-cursos {
+  width: min(100%, 620px);
+  margin: 1rem auto;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .5rem 1.5rem;
+  list-style: none;
+  color: var(--cert-ink);
+  font-size: .85rem;
+}
+.cert-cursos li { padding: .5rem; border-bottom: 1px solid #dce5e6; }
+.cert-mensagem { margin-top: 1rem; color: var(--cert-muted); font-size: .8rem; font-style: italic; }
+.cert-rodape { width: 100%; display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+.cert-assinatura { min-width: 180px; display: flex; flex-direction: column; align-items: flex-start; color: var(--cert-ink); font-family: 'Syne', sans-serif; font-size: .8rem; font-weight: 700; }
+.cert-assinatura-linha { width: 100%; margin-bottom: .35rem; border-top: 1px solid #8da1ad; }
+.cert-assinatura small { color: var(--cert-muted); font-family: 'DM Sans', sans-serif; font-size: .65rem; font-weight: 400; }
+.cert-data { color: var(--cert-muted); font-size: .75rem; }
+
+@media (max-width: 640px) {
+  .cert-modal { padding: 3rem 1rem 1rem; }
+  .cert-moldura { min-height: 420px; padding: 1.5rem 1rem; }
+  .cert-cursos { grid-template-columns: 1fr; gap: .25rem; }
+}
 
 @media print {
+  @page { size: A4 landscape; margin: 12mm; }
+  html, body { width: 100%; min-height: 0; background: #fff !important; }
   body * { visibility: hidden !important; }
   #cert-print, #cert-print * { visibility: visible !important; }
-  #cert-print { position: absolute; left: 0; top: 0; width: 100%; border: none; }
-  .modal-overlay { background: none !important; position: static !important; display: block !important; }
+  .modal-overlay#modal-certificado { position: absolute !important; inset: 0 !important; display: block !important; padding: 0 !important; background: #fff !important; }
+  #modal-certificado .cert-modal { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: #fff !important; }
+  #cert-print { position: relative; width: 100%; padding: 0; background: #fff; }
+  .cert-moldura { min-height: 175mm; outline: 0; box-shadow: inset 0 0 0 5px #fff, inset 0 0 0 6px #b8c9cb; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .cert-selo, .cert-linha, .cert-cursos li, .cert-assinatura-linha { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .cert-acoes, .modal-sair { display: none !important; }
 }
 
 /* ---- ONBOARDING (perfil de acessibilidade) ---- */

@@ -462,18 +462,37 @@
 
 <!-- ===================== MODAL CERTIFICADO ===================== -->
 <div class="modal-overlay" id="modal-certificado">
-  <div class="modal-box" style="max-width:640px">
+  <div class="modal-box cert-modal">
     <button class="btn btn-ghost btn-sm modal-sair" onclick="fecharModal('modal-certificado')">Fechar</button>
-    <div id="cert-print" class="certificado">
-      <div class="cert-logo">UniSense</div>
-      <div class="cert-titulo">Certificado de Conclusão</div>
-      <p class="cert-corpo">Certificamos que</p>
-      <div class="cert-nome" id="cert-nome">—</div>
-      <p class="cert-corpo">concluiu os cursos de acessibilidade do UniSense:</p>
-      <div class="cert-cursos" id="cert-cursos"></div>
-      <div class="cert-data" id="cert-data"></div>
+    <div id="cert-print" class="certificado" aria-label="Certificado de conclusão dos cursos UniSense">
+      <div class="cert-moldura">
+        <header class="cert-cabecalho">
+          <div class="cert-selo" aria-hidden="true">US</div>
+          <div class="cert-logo">UniSense</div>
+          <div class="cert-linha"></div>
+          <div class="cert-submarca">APRENDIZAGEM E ACESSIBILIDADE</div>
+        </header>
+        <section class="cert-conteudo">
+          <p class="cert-chamada">Certificado de conclusão</p>
+          <h1 class="cert-nome" id="cert-nome">—</h1>
+          <p class="cert-corpo">concluiu com êxito os cursos de acessibilidade do UniSense:</p>
+          <ul class="cert-cursos" id="cert-cursos"></ul>
+          <p class="cert-mensagem">Celebramos sua dedicação e compromisso com uma sociedade mais acessível.</p>
+        </section>
+        <footer class="cert-rodape">
+          <div class="cert-assinatura">
+            <span class="cert-assinatura-linha"></span>
+            <span>UniSense</span>
+            <small>Plataforma de aprendizagem</small>
+          </div>
+          <div class="cert-data" id="cert-data"></div>
+        </footer>
+      </div>
     </div>
-    <button class="btn btn-primary btn-sm" style="width:auto;margin-top:1rem" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+    <div class="cert-acoes">
+      <button class="btn btn-primary btn-sm" onclick="window.print()">Salvar como PDF / Imprimir</button>
+      <span>Na janela de impressão, escolha “Salvar como PDF” para baixar o arquivo.</span>
+    </div>
   </div>
 </div>
 
