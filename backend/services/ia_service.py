@@ -12,7 +12,7 @@ load_dotenv()
 
 API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 
-MODELO_IA = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+MODELO_IA = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 MODELO_SIMPLES = os.getenv("GEMINI_SIMPLE_MODEL", MODELO_IA)
 MODELO_VISAO = os.getenv("GEMINI_VISION_MODEL", MODELO_IA)
 
