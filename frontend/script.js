@@ -123,34 +123,9 @@ function fecharModal(id) {
   if (_ultimoFoco && _ultimoFoco.focus) _ultimoFoco.focus()
 }
 
-function aplicarProgressoMateriais() {
-  document.querySelectorAll(".resource-card[data-material]").forEach(card => {
-    const progresso = progressoDe(card.dataset.material)
-    const status = progresso ? progresso.status : ""
-    const botao = card.querySelector(".material-status")
-    if (!botao) return
-    if (status === "concluido") {
-      botao.textContent = "✓ Concluído"
-      botao.className = "btn btn-success btn-sm material-status"
-    } else if (status === "iniciado") {
-      botao.textContent = "Em andamento"
-      botao.className = "btn btn-primary btn-sm material-status"
-    } else {
-      botao.textContent = "Começar"
-      botao.className = "btn btn-ghost btn-sm material-status"
-    }
-  })
-}
-
 function iniciarMaterial(materialId) {
   if (progressoDe(materialId)) return
   registrarProgressoMaterial(materialId, "iniciado")
-}
-
-function avancarMaterial(materialId) {
-  const progresso = progressoDe(materialId)
-  if (!progresso) registrarProgressoMaterial(materialId, "iniciado")
-  else if (progresso.status === "iniciado") registrarProgressoMaterial(materialId, "concluido")
 }
 
 async function registrarProgressoMaterial(materialId, status) {
@@ -165,7 +140,6 @@ async function registrarProgressoMaterial(materialId, status) {
     const atual = progressoDe(materialId)
     if (atual) atual.status = status
     else CURSOS_PROGRESSO.push({ curso_id: materialId, status, pontuacao: 0 })
-    aplicarProgressoMateriais()
   } catch {}
 }
 
@@ -377,7 +351,6 @@ function entrarApp(email, nome, foto, prefs) {
   mostrarScreen("screen-app")
   renderCursosCards()
   navegar("dashboard")
-  aplicarProgressoMateriais()
   document.getElementById("dash-usuario").textContent = "Olá, " + getNome() + "! 👋"
   carregarHistorico()
   carregarProgressoCursos()
@@ -403,7 +376,6 @@ function navegar(pagina) {
   })
   if (pagina === "perfil") preencherPerfil()
   if (pagina === "cursos") voltarCursos()
-  if (pagina === "estudos") aplicarProgressoMateriais()
 }
 
 function preencherPerfil() {
@@ -1304,7 +1276,6 @@ async function carregarProgressoCursos() {
     CURSOS_PROGRESSO = []
   }
   aplicarProgressoCards()
-  aplicarProgressoMateriais()
 }
 
 function aplicarProgressoCards() {
